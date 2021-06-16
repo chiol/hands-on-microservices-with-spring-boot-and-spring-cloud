@@ -28,7 +28,7 @@ public class Product {
         return name;
     }
 
-    public int getWeightl() {
+    public int getWeight() {
         return weight;
     }
 
