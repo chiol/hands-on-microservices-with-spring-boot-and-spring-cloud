@@ -4,12 +4,15 @@ import io.github.chiol.api.composite.product.*;
 import io.github.chiol.api.core.product.Product;
 import io.github.chiol.api.core.recommendation.Recommendation;
 import io.github.chiol.api.core.review.Review;
+import io.github.chiol.util.exceptions.NotFoundException;
 import io.github.chiol.util.http.ServiceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@RestController
 public class ProductCompositeServiceImpl implements ProductCompositeService {
     private final ServiceUtil serviceUtil;
     private ProductCompositeIntegration integration;
@@ -23,9 +26,13 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
     @Override
     public ProductAggregate getProduct(int productId) {
         Product product = integration.getProduct(productId);
+        if (product == null) throw new NotFoundException("No product found for productId: " + productId);
+
         List<Recommendation> recommendations = integration.getRecommendations(productId);
+
         List<Review> reviews = integration.getReviews(productId);
-        return createProductAggregate(product, recommendations, reviews,serviceUtil.getServiceAddress());
+
+        return createProductAggregate(product, recommendations, reviews, serviceUtil.getServiceAddress());
     }
     private ProductAggregate createProductAggregate(Product product, List<Recommendation> recommendations, List<Review> reviews, String serviceAddress) {
 
