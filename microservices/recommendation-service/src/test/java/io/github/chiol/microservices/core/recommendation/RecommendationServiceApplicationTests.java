@@ -1,13 +1,89 @@
 package io.github.chiol.microservices.core.recommendation;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.reactive.server.WebTestClient;
 
-@SpringBootTest
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+
+@SpringBootTest(webEnvironment = RANDOM_PORT)
 class RecommendationServiceApplicationTests {
 
+
 	@Test
-	void contextLoads() {
+	public void getRecommendationsByProductId(@Autowired WebTestClient client) {
+
+		int productId = 1;
+
+		client.get()
+				.uri("/recommendation?productId=" + productId)
+				.accept(APPLICATION_JSON)
+				.exchange()
+				.expectStatus().isOk()
+				.expectHeader().contentType(APPLICATION_JSON)
+				.expectBody()
+				.jsonPath("$.length()").isEqualTo(3)
+				.jsonPath("$[0].productId").isEqualTo(productId);
 	}
 
+	@Test
+	public void getRecommendationsMissingParameter(@Autowired WebTestClient client) {
+
+		client.get()
+				.uri("/recommendation")
+				.accept(APPLICATION_JSON)
+				.exchange()
+				.expectStatus().isEqualTo(BAD_REQUEST)
+				.expectHeader().contentType(APPLICATION_JSON)
+				.expectBody()
+				.jsonPath("$.path").isEqualTo("/recommendation");
+	}
+
+	@Test
+	public void getRecommendationsInvalidParameter(@Autowired WebTestClient client) {
+
+		client.get()
+				.uri("/recommendation?productId=no-integer")
+				.accept(APPLICATION_JSON)
+				.exchange()
+				.expectStatus().isEqualTo(BAD_REQUEST)
+				.expectHeader().contentType(APPLICATION_JSON)
+				.expectBody()
+				.jsonPath("$.path").isEqualTo("/recommendation");
+	}
+
+	@Test
+	public void getRecommendationsNotFound(@Autowired WebTestClient client) {
+
+		int productIdNotFound = 113;
+
+		client.get()
+				.uri("/recommendation?productId=" + productIdNotFound)
+				.accept(APPLICATION_JSON)
+				.exchange()
+				.expectStatus().isOk()
+				.expectHeader().contentType(APPLICATION_JSON)
+				.expectBody()
+				.jsonPath("$.length()").isEqualTo(0);
+	}
+
+	@Test
+	public void getRecommendationsInvalidParameterNegativeValue(@Autowired WebTestClient client) {
+
+		int productIdInvalid = -1;
+
+		client.get()
+				.uri("/recommendation?productId=" + productIdInvalid)
+				.accept(APPLICATION_JSON)
+				.exchange()
+				.expectStatus().isEqualTo(UNPROCESSABLE_ENTITY)
+				.expectHeader().contentType(APPLICATION_JSON)
+				.expectBody()
+				.jsonPath("$.path").isEqualTo("/recommendation")
+				.jsonPath("$.message").isEqualTo("Invalid productId: " + productIdInvalid);
+	}
 }
