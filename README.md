@@ -47,3 +47,18 @@ docker compose down
 ```shell script
 ./test-em-all.bash start stop
 ```
+
+# 영속성 추가
+
+## 진행 방향 확인
+
+- 프로토콜 계층
+  - 공통 클래스인 GlobalControllerExceptionHandler와 RestController 애노테이
+- 서비스 계층
+  - 마이크로서비스의 주요 기능
+- 통합 계층
+  - product-composite 서비스에는 세 가지 핵심 마이크로서비스와 통신하는 계층
+- 영속성 계층
+  - 모든 마이크로서비스에서 자체 데이터베이스와 통신
+
+## 엔티티 클래스를 사용해 데이터 저장
