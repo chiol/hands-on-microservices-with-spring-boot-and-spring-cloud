@@ -24,3 +24,15 @@
     - ServiceUtil - 호스트이름, IP 주소, 포트를 검색
     - GlobalControllerExceptionHandler - 자바 예외를 적절한 HTTP 상태코드와 매핑
     - HttpErrorInfo - 자바 예외를 적절한 HTTP 상태코드와 매핑
+    
+# 도커를 사용한 마이크로서비스 배포
+
+## 도커로 단일 마이크로서비스 실행
+
+```shell script
+./gradlew :microservices:product-service:build
+cd microservices/product-service
+docker build -t product-service .
+docker run --rm -p8080:8080 -e "SPRING_PROFILES_ACTIVE=docker" product-service
+curl localhost:8080/product/3
+```
