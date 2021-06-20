@@ -36,3 +36,10 @@ docker build -t product-service .
 docker run --rm -p8080:8080 -e "SPRING_PROFILES_ACTIVE=docker" product-service
 curl localhost:8080/product/3
 ```
+## 도커 컴포즈를 사용한 마이크로서비스 환경 관리
+```shell script
+./gradlew build
+docker compose build
+docker compose up -d
+docker compose down
+```
