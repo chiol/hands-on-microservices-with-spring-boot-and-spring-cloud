@@ -43,3 +43,7 @@ docker compose build
 docker compose up -d
 docker compose down
 ```
+## 도커 컴포즈를 이용한 마이크로서비스 환경 테스트
+```shell script
+./test-em-all.bash start stop
+```
