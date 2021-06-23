@@ -5,6 +5,11 @@ logging:
   level:
     root: INFO
     se.magnus: DEBUG
+
+spring:
+  data:
+    mongodb:
+      auto-index-creation: true
 ---
 
 spring:
