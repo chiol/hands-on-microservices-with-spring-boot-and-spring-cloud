@@ -1,5 +1,4 @@
 package io.github.chiol.api.composite.product;
-
 public class ServiceAddresses {
     private final String cmp;
     private final String pro;

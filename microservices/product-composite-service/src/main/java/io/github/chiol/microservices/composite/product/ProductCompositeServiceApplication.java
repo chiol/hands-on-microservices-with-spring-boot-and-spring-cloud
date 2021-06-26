@@ -13,7 +13,7 @@ import springfox.documentation.service.Contact;
 import springfox.documentation.spring.web.plugins.Docket;
 
 import static java.util.Collections.emptyList;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
+import static org.springframework.web.bind.annotation.RequestMethod.*;
 import static springfox.documentation.builders.RequestHandlerSelectors.basePackage;
 import static springfox.documentation.spi.DocumentationType.SWAGGER_2;
 
@@ -31,15 +31,11 @@ public class ProductCompositeServiceApplication {
 	@Value("${api.common.contact.url}")       String apiContactUrl;
 	@Value("${api.common.contact.email}")     String apiContactEmail;
 
-	public static void main(String[] args) {
-		SpringApplication.run(ProductCompositeServiceApplication.class, args);
-	}
-
-	@Bean
-	RestTemplate restTemplate() {
-		return new RestTemplate();
-	}
-
+	/**
+	 * Will exposed on $HOST:$PORT/swagger-ui.html
+	 *
+	 * @return
+	 */
 	@Bean
 	public Docket apiDocumentation() {
 
@@ -48,7 +44,9 @@ public class ProductCompositeServiceApplication {
 				.apis(basePackage("io.github.chiol.microservices.composite.product"))
 				.paths(PathSelectors.any())
 				.build()
+				.globalResponseMessage(POST, emptyList())
 				.globalResponseMessage(GET, emptyList())
+				.globalResponseMessage(DELETE, emptyList())
 				.apiInfo(new ApiInfo(
 						apiTitle,
 						apiDescription,
@@ -59,6 +57,15 @@ public class ProductCompositeServiceApplication {
 						apiLicenseUrl,
 						emptyList()
 				));
+	}
+
+	@Bean
+	RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
+
+	public static void main(String[] args) {
+		SpringApplication.run(ProductCompositeServiceApplication.class, args);
 	}
 
 }

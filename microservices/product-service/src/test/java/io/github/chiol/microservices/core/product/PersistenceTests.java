@@ -2,10 +2,8 @@ package io.github.chiol.microservices.core.product;
 
 import io.github.chiol.microservices.core.product.persistence.ProductEntity;
 import io.github.chiol.microservices.core.product.persistence.ProductRepository;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.dao.DuplicateKeyException;
@@ -13,8 +11,6 @@ import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 import java.util.Optional;
@@ -101,9 +97,9 @@ public class PersistenceTests {
         repository.saveAll(newProducts);
         Pageable nextPage = PageRequest.of(0, 4, ASC, "productId");
 
-        nextPage = testNextPage(nextPage, "[1001,1002,1003,1004]", true);
-        nextPage = testNextPage(nextPage, "[1005,1006,1007,1008]", true);
-        nextPage = testNextPage(nextPage, "[1009,1010]", false);
+        nextPage = testNextPage(nextPage, "[1001, 1002, 1003, 1004]", true);
+        nextPage = testNextPage(nextPage, "[1005, 1006, 1007, 1008]", true);
+        nextPage = testNextPage(nextPage, "[1009, 1010]", false);
 
 
     }
