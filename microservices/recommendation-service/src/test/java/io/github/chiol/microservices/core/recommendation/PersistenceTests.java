@@ -74,7 +74,6 @@ public class PersistenceTests {
     public void duplicateError() {
         RecommendationEntity entity = new RecommendationEntity(1, 2, "a", 3, "c");
         assertThrows(DuplicateKeyException.class, () -> {repository.save(entity);});
-
     }
 
     @Test
