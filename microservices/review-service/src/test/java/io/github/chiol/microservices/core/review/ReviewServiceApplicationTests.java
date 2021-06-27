@@ -1,15 +1,25 @@
 package io.github.chiol.microservices.core.review;
 
+import io.github.chiol.api.core.product.Product;
 import io.github.chiol.api.core.review.Review;
+import io.github.chiol.api.event.Event;
 import io.github.chiol.microservices.core.review.persistence.ReviewRepository;
+import io.github.chiol.util.exceptions.InvalidInputException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.stream.messaging.Sink;
 import org.springframework.http.HttpStatus;
+import org.springframework.integration.channel.AbstractMessageChannel;
+import org.springframework.messaging.MessagingException;
+import org.springframework.messaging.support.GenericMessage;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import static io.github.chiol.api.event.Event.Type.CREATE;
+import static io.github.chiol.api.event.Event.Type.DELETE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static reactor.core.publisher.Mono.just;
 import static org.springframework.http.HttpStatus.*;
@@ -22,9 +32,14 @@ class ReviewServiceApplicationTests {
 	@Autowired
 	private ReviewRepository repository;
 
+	@Autowired
+	private Sink channels;
+
+	private AbstractMessageChannel input = null;
 
 	@BeforeEach
 	public void setupDb() {
+		input = (AbstractMessageChannel) channels.input();
 		repository.deleteAll();
 	}
 
@@ -35,9 +50,9 @@ class ReviewServiceApplicationTests {
 
 		assertEquals(0, repository.findByProductId(productId).size());
 
-		postAndVerifyReview(productId, 1, OK, client);
-		postAndVerifyReview(productId, 2, OK, client);
-		postAndVerifyReview(productId, 3, OK, client);
+		sendCreateReviewEvent(productId, 1);
+		sendCreateReviewEvent(productId, 2);
+		sendCreateReviewEvent(productId, 3);
 
 		assertEquals(3, repository.findByProductId(productId).size());
 
@@ -48,39 +63,45 @@ class ReviewServiceApplicationTests {
 	}
 
 	@Test
-	public void duplicateError(@Autowired WebTestClient client) {
+	public void duplicateError() {
 
 		int productId = 1;
 		int reviewId = 1;
 
 		assertEquals(0, repository.count());
 
-		postAndVerifyReview(productId, reviewId, OK, client)
-				.jsonPath("$.productId").isEqualTo(productId)
-				.jsonPath("$.reviewId").isEqualTo(reviewId);
+		sendCreateReviewEvent(productId, reviewId);
 
 		assertEquals(1, repository.count());
 
-		postAndVerifyReview(productId, reviewId, UNPROCESSABLE_ENTITY, client)
-				.jsonPath("$.path").isEqualTo("/review")
-				.jsonPath("$.message").isEqualTo("Duplicate key, Product Id: 1, Review Id:1");
+		try {
+			sendCreateReviewEvent(productId, reviewId);
+			fail("Expected a MessagingException here!");
+		} catch (MessagingException me) {
+			if (me.getCause() instanceof InvalidInputException)	{
+				InvalidInputException iie = (InvalidInputException)me.getCause();
+				assertEquals("Duplicate key, Product Id: 1, Review Id:1", iie.getMessage());
+			} else {
+				fail("Expected a InvalidInputException as the root cause!");
+			}
+		}
 
 		assertEquals(1, repository.count());
 	}
 
 	@Test
-	public void deleteReviews(@Autowired WebTestClient client) {
+	public void deleteReviews() {
 
 		int productId = 1;
-		int recommendationId = 1;
+		int reviewId = 1;
 
-		postAndVerifyReview(productId, recommendationId, OK, client);
+		sendCreateReviewEvent(productId, reviewId);
 		assertEquals(1, repository.findByProductId(productId).size());
 
-		deleteAndVerifyReviewsByProductId(productId, OK, client);
+		sendDeleteReviewEvent(productId);
 		assertEquals(0, repository.findByProductId(productId).size());
 
-		deleteAndVerifyReviewsByProductId(productId, OK, client);
+		sendDeleteReviewEvent(productId);
 	}
 
 	@Test
@@ -149,5 +170,17 @@ class ReviewServiceApplicationTests {
 				.exchange()
 				.expectStatus().isEqualTo(expectedStatus)
 				.expectBody();
+	}
+
+
+	private void sendCreateReviewEvent(int productId, int reviewId) {
+		Review review = new Review(productId, reviewId, "Author " + reviewId, "Subject " + reviewId, "Content " + reviewId, "SA");
+		Event<Integer, Product> event = new Event(CREATE, productId, review);
+		input.send(new GenericMessage<>(event));
+	}
+
+	private void sendDeleteReviewEvent(int productId) {
+		Event<Integer, Product> event = new Event(DELETE, productId, null);
+		input.send(new GenericMessage<>(event));
 	}
 }

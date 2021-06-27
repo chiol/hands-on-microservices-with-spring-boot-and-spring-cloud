@@ -19,37 +19,28 @@ import static reactor.core.publisher.Mono.error;
 
 @RestController
 public class ProductServiceImpl implements ProductService {
+
     private static final Logger LOG = LoggerFactory.getLogger(ProductServiceImpl.class);
+
     private final ServiceUtil serviceUtil;
+
     private final ProductRepository repository;
+
     private final ProductMapper mapper;
-    private final WebClient webClient;
 
     @Autowired
-    public ProductServiceImpl(ServiceUtil serviceUtil, ProductRepository repository, ProductMapper mapper,WebClient webClient) {
-        this.serviceUtil = serviceUtil;
+    public ProductServiceImpl(ProductRepository repository, ProductMapper mapper, ServiceUtil serviceUtil) {
         this.repository = repository;
         this.mapper = mapper;
-        this.webClient = webClient;
+        this.serviceUtil = serviceUtil;
     }
 
-    @Override
-    public Mono<Product> getProduct(int productId) {
-        LOG.debug("/product return the found product for productId={}", productId);
-
-        if (productId < 1) throw new InvalidInputException("Invalid productId: " + productId);
-
-        return repository.findByProductId(productId)
-                .switchIfEmpty(error(new NotFoundException("No product found for productId: " + productId)))
-                .log()
-                .map(e -> mapper.entityToApi(e))
-                .map(e -> {e.setServiceAddress(serviceUtil.getServiceAddress()); return e; });
-
-    }
 
     @Override
     public Product createProduct(Product body) {
-        if (body.getProductId() < 1)  throw new InvalidInputException("Invalid productId: " + body.getProductId());
+
+        if (body.getProductId() < 1) throw new InvalidInputException("Invalid productId: " + body.getProductId());
+
         ProductEntity entity = mapper.apiToEntity(body);
         Mono<Product> newEntity = repository.save(entity)
                 .log()
@@ -59,6 +50,18 @@ public class ProductServiceImpl implements ProductService {
                 .map(e -> mapper.entityToApi(e));
 
         return newEntity.block();
+    }
+
+    @Override
+    public Mono<Product> getProduct(int productId) {
+
+        if (productId < 1) throw new InvalidInputException("Invalid productId: " + productId);
+
+        return repository.findByProductId(productId)
+                .switchIfEmpty(error(new NotFoundException("No product found for productId: " + productId)))
+                .log()
+                .map(e -> mapper.entityToApi(e))
+                .map(e -> {e.setServiceAddress(serviceUtil.getServiceAddress()); return e;});
     }
 
     @Override

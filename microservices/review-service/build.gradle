@@ -10,6 +10,8 @@ sourceCompatibility = '1.8'
 
 ext {
 	mapstructVersion = "1.4.2.Final"
+	set('springCloudVersion', "2020.0.3")
+
 }
 
 repositories {
@@ -24,6 +26,8 @@ dependencies {
 	implementation('org.springframework.boot:spring-boot-starter-data-jpa')
 	implementation('mysql:mysql-connector-java')
 	implementation("org.mapstruct:mapstruct:${mapstructVersion}")
+	implementation 'org.springframework.cloud:spring-cloud-starter-stream-rabbit'
+	implementation 'org.springframework.cloud:spring-cloud-starter-stream-kafka'
 
 	compileOnly "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 	annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
@@ -32,9 +36,17 @@ dependencies {
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
 	testImplementation('io.projectreactor:reactor-test')
 	testImplementation('com.h2database:h2')
+	testImplementation 'org.springframework.cloud:spring-cloud-stream-test-support'
+
 }
 
 
 test {
 	useJUnitPlatform()
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
 }
