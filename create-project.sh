@@ -52,3 +52,17 @@ spring init \
 product-composite-service
 
 cd ..
+
+mkdir spring-cloud
+cd spring-cloud
+
+spring init \
+--boot-version=2.5.1.RELEASE \
+--build=gradle \
+--java-version=1.8 \
+--packaging=jar \
+--name=eureka-server \
+--package-name=io.github.chiol.springcloud.eurekaserver \
+--groupId=io.github.chiol.springcloud.eurekaserver \
+--version=1.0.0-SNAPSHOT \
+eureka-server

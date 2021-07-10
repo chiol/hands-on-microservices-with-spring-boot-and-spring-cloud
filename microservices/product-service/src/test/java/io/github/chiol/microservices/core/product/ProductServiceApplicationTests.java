@@ -7,6 +7,7 @@ import io.github.chiol.util.exceptions.InvalidInputException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.stream.messaging.Sink;
 import org.springframework.http.HttpStatus;
@@ -23,7 +24,11 @@ import static reactor.core.publisher.Mono.just;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT,properties = {"spring.data.mongodb.port: 0"})
+@SpringBootTest(webEnvironment = RANDOM_PORT,properties = {
+        "spring.data.mongodb.port: 0",
+        "eureka.client.enabled=false",
+})
+@AutoConfigureWebTestClient(timeout = "1s")
 class ProductServiceApplicationTests {
 
     @Autowired

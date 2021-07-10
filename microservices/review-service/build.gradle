@@ -11,7 +11,6 @@ sourceCompatibility = '1.8'
 ext {
 	mapstructVersion = "1.4.2.Final"
 	set('springCloudVersion', "2020.0.3")
-
 }
 
 repositories {
@@ -28,6 +27,8 @@ dependencies {
 	implementation("org.mapstruct:mapstruct:${mapstructVersion}")
 	implementation 'org.springframework.cloud:spring-cloud-starter-stream-rabbit'
 	implementation 'org.springframework.cloud:spring-cloud-starter-stream-kafka'
+	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+
 
 	compileOnly "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 	annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"

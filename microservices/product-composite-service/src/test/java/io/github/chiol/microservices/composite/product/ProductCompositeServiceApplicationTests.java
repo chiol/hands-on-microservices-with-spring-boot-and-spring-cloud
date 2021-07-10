@@ -1,8 +1,5 @@
 package io.github.chiol.microservices.composite.product;
 
-import io.github.chiol.api.composite.product.ProductAggregate;
-import io.github.chiol.api.composite.product.RecommendationSummary;
-import io.github.chiol.api.composite.product.ReviewSummary;
 import io.github.chiol.api.core.product.Product;
 import io.github.chiol.api.core.recommendation.Recommendation;
 import io.github.chiol.api.core.review.Review;
@@ -24,21 +21,21 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static reactor.core.publisher.Mono.just;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
+@SpringBootTest(webEnvironment = RANDOM_PORT, properties = {"eureka.client.enabled=false"})
 class ProductCompositeServiceApplicationTests {
 
     private static final int PRODUCT_ID_OK = 1;
     private static final int PRODUCT_ID_NOT_FOUND = 2;
     private static final int PRODUCT_ID_INVALID = 3;
 
+
+
     @MockBean
     private ProductCompositeIntegration compositeIntegration;
 
     @BeforeEach
     public void setUp() {
-
 
         when(compositeIntegration.getProduct(PRODUCT_ID_OK)).
                 thenReturn(Mono.just(new Product(PRODUCT_ID_OK, "name", 1, "mock-address")));
@@ -56,35 +53,6 @@ class ProductCompositeServiceApplicationTests {
 
     @Test
     public void contextLoads() {
-    }
-
-    @Test
-    public void createCompositeProduct1(@Autowired WebTestClient client) {
-
-        ProductAggregate compositeProduct = new ProductAggregate(1, "name", 1, null, null, null);
-
-        postAndVerifyProduct(compositeProduct, OK, client);
-    }
-
-    @Test
-    public void createCompositeProduct2(@Autowired WebTestClient client) {
-        ProductAggregate compositeProduct = new ProductAggregate(1, "name", 1,
-                singletonList(new RecommendationSummary(1, "a", 1, "c")),
-                singletonList(new ReviewSummary(1, "a", "s", "c")), null);
-
-        postAndVerifyProduct(compositeProduct, OK, client);
-    }
-
-    @Test
-    public void deleteCompositeProduct(@Autowired WebTestClient client) {
-        ProductAggregate compositeProduct = new ProductAggregate(1, "name", 1,
-                singletonList(new RecommendationSummary(1, "a", 1, "c")),
-                singletonList(new ReviewSummary(1, "a", "s", "c")), null);
-
-        postAndVerifyProduct(compositeProduct, OK, client);
-
-        deleteAndVerifyProduct(compositeProduct.getProductId(), OK, client);
-        deleteAndVerifyProduct(compositeProduct.getProductId(), OK, client);
     }
 
     @Test
@@ -120,20 +88,5 @@ class ProductCompositeServiceApplicationTests {
                 .expectStatus().isEqualTo(expectedStatus)
                 .expectHeader().contentType(APPLICATION_JSON)
                 .expectBody();
-    }
-
-    private void postAndVerifyProduct(ProductAggregate compositeProduct, HttpStatus expectedStatus, WebTestClient client) {
-        client.post()
-                .uri("/product-composite")
-                .body(just(compositeProduct), ProductAggregate.class)
-                .exchange()
-                .expectStatus().isEqualTo(expectedStatus);
-    }
-
-    private void deleteAndVerifyProduct(int productId, HttpStatus expectedStatus, WebTestClient client) {
-        client.delete()
-                .uri("/product-composite/" + productId)
-                .exchange()
-                .expectStatus().isEqualTo(expectedStatus);
     }
 }
