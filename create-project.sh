@@ -66,3 +66,14 @@ spring init \
 --groupId=io.github.chiol.springcloud.eurekaserver \
 --version=1.0.0-SNAPSHOT \
 eureka-server
+
+spring init \
+--boot-version=2.5.1.RELEASE \
+--build=gradle \
+--java-version=1.8 \
+--packaging=jar \
+--name=gateway \
+--package-name=io.github.chiol.springcloud.gateway \
+--groupId=io.github.chiol.springcloud.gateway \
+--version=1.0.0-SNAPSHOT \
+gateway
