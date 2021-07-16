@@ -77,10 +77,11 @@ function waitForService() {
             echo " Give up"
             exit 1
         else
-            sleep 6
+            sleep 3
             echo -n ", retry #$n "
         fi
     done
+    echo "DONE, continues..."
 }
 
 function testCompositeCreated() {
@@ -120,7 +121,7 @@ function waitForMessageProcessing() {
             echo " Give up"
             exit 1
         else
-            sleep 6
+            sleep 3
             echo -n ", retry #$n "
         fi
     done
@@ -167,7 +168,7 @@ function setupTestdata() {
         {"reviewId":2,"author":"author 2","subject":"subject 2","content":"content 2"},
         {"reviewId":3,"author":"author 3","subject":"subject 3","content":"content 3"}
     ]}'
-    recreateComposite 1 "$body"
+    recreateComposite "$PROD_ID_REVS_RECS" "$body"
 
 }
 

@@ -89,3 +89,11 @@ services:
   eureka:
     build: spring-cloud/eureka-server
     mem_limit: 350m
+
+  gateway:
+    build: spring-cloud/gateway
+    mem_limit: 350m
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    ports:
+    - 8080:8080
