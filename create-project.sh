@@ -77,3 +77,15 @@ spring init \
 --groupId=io.github.chiol.springcloud.gateway \
 --version=1.0.0-SNAPSHOT \
 gateway
+
+spring init \
+--boot-version=2.5.1.RELEASE \
+--build=gradle \
+--java-version=1.8 \
+--packaging=jar \
+--name=authorizationserver \
+--package-name=io.github.chiol.springcloud.authorizationserver \
+--groupId=io.github.chiol.springcloud.authorizationserver \
+--dependencies=web,actuator,security \
+--version=1.0.0-SNAPSHOT \
+authorization-server

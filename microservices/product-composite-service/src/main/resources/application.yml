@@ -53,10 +53,16 @@ server.error.include-message: always
 
 spring.application.name: product-composite
 
+app:
+  eureka-username: u
+  eureka-password: p
+  eureka-server: localhost
+  auth-server: localhost
+
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: "http://${app.eureka-username}:${app.eureka-password}@${app.eureka-server}:8761/eureka/"
     initialInstanceInfoReplicationIntervalSeconds: 5
     registryFetchIntervalSeconds: 5
   instance:
@@ -97,16 +103,21 @@ spring.rabbitmq:
 logging:
   level:
     root: INFO
-    se.magnus: DEBUG
+    io.github.chiol: DEBUG
 
 management.endpoint.health.show-details: "ALWAYS"
 management.endpoints.web.exposure.include: "*"
+
+spring.security.oauth2.resourceserver.jwt.issuer-uri: https://${TENANT_DOMAIN_NAME}/
+
 ---
 spring.profiles: docker
 
 server.port: 8080
 
-eureka.client.serviceUrl.defaultZone: http://eureka:8761/eureka/
+app:
+  eureka-server: eureka
+  auth-server: auth-server
 
 spring.rabbitmq.host: rabbitmq
 
